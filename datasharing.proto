@@ -1,12 +1,9 @@
 service DataSharing {
   // list available snowflake regions
-  rpc ListSnowflakeRegions(ListSnowflakeRegionsRequest) returns (ListSnowflakeRegionsReply);
+  rpc ListSnowflakeRegions() returns (ListSnowflakeRegionsReply);
 
   // list current datashares
   rpc ListDataShares(ListDataSharesRequest) returns (ListDataSharesReply);
-  
-  // get details of a datashare
-  rpc ShowDataShare(ShowDataShareRequest) returns (ShowDataShareReply);
   
   // create a datashare
   rpc CreateDataShare(CreateDataShareRequest) returns (CreateDataShareReply);
@@ -14,47 +11,46 @@ service DataSharing {
   // remove a datashare
   rpc RemoveDataShare(RemoveDataShareRequest) returns (RemoveDataShareReply);
 }
-
-message ListSnowflakeRegionsRequest {
-  system.UUID account_id = 1;
+  
+  message SnowflakeRegion {
+  //https://docs.snowflake.com/en/user-guide/admin-account-identifier.html#snowflake-region-ids-and-region-groups
+    string snowflake_region_id = 1; //primary key ex. aws_us_west_2
+    string cloud_region = 2; // ex. US West (Oregon)
+    string cloud_region_id = 3; // ex. us-west-2
+    
   }
   
  message ListSnowflakeRegionsReply {
-  repeated string available_regions = 1;
+  repeated SnowflakeRegion available_regions = 1;
  }
   
  message ListDataSharesRequest {
-  system.UUID account_id = 1;
-  // filters by org_id??
+  system.UUID org_guid = 1; //could be changed to string later 
+  string bento = 2;
+ }
+ 
+ message DataShare {
+  system.UUID org_guid = 1;
+  string bento = 2;
+  string snowflake_account_id = 3; 
  }
  
  message ListDataSharesReply {
-  repeated string active_datashares = 1;
+  repeated DataShare active_datashares = 1;
  }
  
- message ShowDataShareRequest {
-  system.UUID account_id = 1;
-  string datashare_id = 2;
- }
- 
- message ShowDataShareReply {
-  //info about datashare
-  string date_created = 1;
-  string size = 2; //etc...
- }
  
  message CreateDataShareRequest {
-  system.UUID account_id = 1;
-  string tables = 2; // ?? what info here
+  DataShare datashare = 1;
  }
  
  message CreateDataShareReply {
   string confirmation_message = 1;
+  // ask Kirill or look at examples, might need errors here
  }
 
  message RemoveDataShareRequest {
-  system.UUID account_id = 1;
-  string datashare = 2;
+  DataShare datashare = 1;
  }
  
  message RemoveDataShareReply {
